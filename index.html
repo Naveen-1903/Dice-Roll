@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dice Roll Simulator</title>
+    <style>
+        body {
+            font-family: "Open Sans", sans-serif;
+            text-align: center;
+            margin: 0;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin: 2rem 0 1rem;
+            color: #333;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .dice-container {
+            perspective: 1200px;
+            perspective-origin: 50% 50%;
+            margin: 40px 0;
+            position: relative;
+            height: 200px;
+        }
+
+        .dice {
+            font-size: 6rem;
+            width: 100px;
+            height: 100px;
+            line-height: 100px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-style: preserve-3d;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            color: #333;
+            text-align: center;
+        }
+
+        .roll-animation {
+            animation: rollDice 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes rollDice {
+            0% {
+                transform: translateX(-150px) translateY(-50%) translateZ(0) rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                filter: blur(0);
+            }
+            20% {
+                transform: translateX(-80px) translateY(-80%) translateZ(100px) rotateX(180deg) rotateY(90deg) rotateZ(45deg);
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+                filter: blur(1px);
+            }
+            40% {
+                transform: translateX(0px) translateY(-50%) translateZ(50px) rotateX(360deg) rotateY(270deg) rotateZ(90deg);
+                box-shadow: 0 8px 18px rgba(0, 0, 0, 0.35);
+                filter: blur(0.5px);
+            }
+            60% {
+                transform: translateX(80px) translateY(-80%) translateZ(80px) rotateX(540deg) rotateY(450deg) rotateZ(135deg);
+                box-shadow: 0 12px 25px rgba(0, 0, 0, 0.45);
+                filter: blur(1px);
+            }
+            80% {
+                transform: translateX(120px) translateY(-50%) translateZ(20px) rotateX(720deg) rotateY(630deg) rotateZ(180deg);
+                box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+                filter: blur(0.5px);
+            }
+            100% {
+                transform: translateX(0px) translateY(-50%) translateZ(0) rotateX(720deg) rotateY(720deg) rotateZ(0deg);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+                filter: blur(0);
+            }
+        }
+
+        .button-container {
+            margin: 20px 0;
+        }
+
+        button {
+            background-color: #4a90e2;
+            color: white;
+            font-size: 1.5rem;
+            padding: 1rem 2.5rem;
+            border: none;
+            border-radius: 2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background-color: #357abd;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        button:active {
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        #clear-history {
+            background-color: #e94e77;
+            margin-left: 10px;
+        }
+
+        #clear-history:hover {
+            background-color: #d43f66;
+        }
+
+        .history-container {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 0 20px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            font-size: 1.5rem;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s ease;
+        }
+
+        li:hover {
+            transform: translateX(5px);
+        }
+
+        li span {
+            font-size: 3rem;
+            margin-right: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dice Roll Simulator</h1>
+    <div class="dice-container">
+        <div class="dice" id="dice">⚄</div>
+    </div>
+    <div class="button-container">
+        <button id="roll-button">Roll Dice</button>
+        <button id="clear-history">Clear History</button>
+    </div>
+    <div class="history-container">
+        <ul id="roll-history"></ul>
+    </div>
+
+    <script>
+        const buttonEl = document.getElementById("roll-button");
+        const clearButtonEl = document.getElementById("clear-history");
+        const diceEl = document.getElementById("dice");
+        const rollHistoryEl = document.getElementById("roll-history");
+        let historyList = [];
+
+        function rollDice() {
+            const rollResult = Math.floor(Math.random() * 6) + 1;
+            const diceFace = getDiceFace(rollResult);
+            diceEl.innerHTML = diceFace;
+            historyList.push(rollResult);
+            updateRollHistory();
+        }
+
+        function updateRollHistory() {
+            rollHistoryEl.innerHTML = "";
+            for (let i = 0; i < historyList.length; i++) {
+                const listItem = document.createElement("li");
+                listItem.innerHTML = `Roll ${i + 1}: <span>${getDiceFace(historyList[i])}</span>`;
+                rollHistoryEl.appendChild(listItem);
+            }
+        }
+
+        function clearHistory() {
+            historyList = [];
+            rollHistoryEl.innerHTML = "";
+            diceEl.innerHTML = "⚄"; // Reset to default face
+            diceEl.style.transform = "translateX(0px) translateY(-50%) translateZ(0) rotateX(0deg) rotateY(0deg) rotateZ(0deg)"; // Reset transform
+        }
+
+        function getDiceFace(rollResult) {
+            switch (rollResult) {
+                case 1: return "⚀";
+                case 2: return "⚁";
+                case 3: return "⚂";
+                case 4: return "⚃";
+                case 5: return "⚄";
+                case 6: return "⚅";
+                default: return "";
+            }
+        }
+
+        buttonEl.addEventListener("click", () => {
+            diceEl.classList.remove("roll-animation");
+            void diceEl.offsetWidth; // Trigger reflow for animation restart
+            diceEl.classList.add("roll-animation");
+            setTimeout(() => {
+                rollDice();
+                diceEl.classList.remove("roll-animation"); // Clean up after animation
+            }, 2000); // Match animation duration (2s)
+        });
+
+        clearButtonEl.addEventListener("click", clearHistory);
+    </script>
+</body>
+</html>
